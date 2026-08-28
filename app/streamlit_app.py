@@ -100,10 +100,11 @@ body::before {{
     font-size: 0.82rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 }}
 
 .title-wrap {{ margin-top: 0.95rem; }}
-.hero-title {{ font-size: clamp(2.4rem, 4vw, 4.1rem); font-weight: 700; color: {TEXT}; margin: 0; line-height: 1.02; }}
+.hero-title {{ font-size: clamp(2.4rem, 4vw, 4.1rem); font-weight: 700; color: {TEXT}; margin: 0; line-height: 1.02; letter-spacing: -0.05em; }}
 .hero-subtitle {{ color: {TEXT_SOFT}; font-size: 1.02rem; max-width: 54rem; margin-top: 0.85rem; line-height: 1.6; }}
 
 .card {{
@@ -115,6 +116,18 @@ body::before {{
     box-shadow: {SURFACE_SHADOW};
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
+    position: relative;
+    overflow: hidden;
+}}
+
+.card::before {{
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    opacity: 0.8;
 }}
 
 .soft-panel {{
@@ -127,6 +140,24 @@ body::before {{
     -webkit-backdrop-filter: blur(18px);
 }}
 
+.kpi-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}}
+
+.kpi-card {{
+    background: linear-gradient(180deg, rgba(15,24,37,0.8), rgba(9,15,26,0.9));
+    border: 1px solid {BORDER};
+    border-radius: 18px;
+    padding: 1rem 1rem 0.9rem;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}}
+
 .pill {{
     display: inline-flex;
     align-items: center;
@@ -137,6 +168,7 @@ body::before {{
     font-weight: 700;
     letter-spacing: 0.02em;
     border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }}
 
 .section-title {{ font-weight: 700; color: {TEXT}; font-size: 1.25rem; margin: 0 0 0.7rem; letter-spacing: -0.01em; }}
@@ -148,6 +180,12 @@ body::before {{
 .metric-label {{ color: {TEXT_SOFT}; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; }}
 .metric-meta {{ color: {MUTED}; font-size: 0.82rem; margin-top: 0.3rem; }}
 .chart-card {{ padding: 18px 18px 8px; }}
+
+[data-testid="stPlotlyChart"] > div {{ border-radius: 18px; overflow: hidden; }}
+
+@media (max-width: 768px) {{
+    .kpi-grid {{ grid-template-columns: 1fr; }}
+}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -254,10 +292,11 @@ delta = current_aqi - aqi_24h_ago
 delta_color = GOOD_FG if delta < 0 else BAD_FG
 delta_arrow = "▼" if delta < 0 else "▲"
 trend_meta = "Improving" if delta < 0 else "Worsening"
+peak_risk = max(forecast["day1"], forecast["day2"], forecast["day3"])
 
 with st.container():
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    gauge_col, status_col = st.columns([1.15, 0.85])
+    gauge_col, status_col = st.columns([1.18, 0.82])
     with gauge_col:
         fig = go.Figure(
             go.Indicator(
@@ -299,8 +338,30 @@ with st.container():
             ''',
             unsafe_allow_html=True,
         )
+        st.write("")
         st.markdown(f'<div class="metric-meta">Updated {feature_row["time"].iloc[0]}</div>', unsafe_allow_html=True)
+        st.write("")
+        st.markdown(
+            f'''
+            <div class="soft-panel" style="padding: 0.9rem 1rem; margin-top: 0.25rem;">
+              <div class="metric-label">Peak 3-day risk</div>
+              <div class="value-large" style="margin-top: 0.3rem;">{peak_risk:.1f}</div>
+            </div>
+            ''',
+            unsafe_allow_html=True,
+        )
     st.markdown('</div>', unsafe_allow_html=True)
+
+st.write("")
+
+# --- Summary KPI cards ---
+summary_cols = st.columns(3)
+with summary_cols[0]:
+    st.markdown(f'''<div class="kpi-card"><div class="metric-label">Daily AQI</div><div class="value-large">{current_aqi:.1f}</div><div class="metric-meta">Live snapshot</div></div>''', unsafe_allow_html=True)
+with summary_cols[1]:
+    st.markdown(f'''<div class="kpi-card"><div class="metric-label">3-day peak</div><div class="value-large">{peak_risk:.1f}</div><div class="metric-meta">Worst expected day</div></div>''', unsafe_allow_html=True)
+with summary_cols[2]:
+    st.markdown(f'''<div class="kpi-card"><div class="metric-label">Condition</div><div class="value-large">{label}</div><div class="metric-meta">Current category</div></div>''', unsafe_allow_html=True)
 
 st.write("")
 

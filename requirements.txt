@@ -2,7 +2,7 @@ streamlit
 plotly
 streamlit-extras
 shap
-hopsworks
+hopsworks==5.0.3
 pyarrow
 xgboost
 pandas

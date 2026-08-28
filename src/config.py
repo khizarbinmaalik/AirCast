@@ -4,11 +4,21 @@ Import constants from here instead of hardcoding them in individual scripts —
 changing a value (city, feature group version, split ratio, etc.) should only
 ever require editing this one file, not hunting through every script.
 """
-
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+def _get_secret(key):
+    value = os.getenv(key)
+    if value:
+        return value
+    try:
+        import streamlit as st
+        value = st.secrets.get(key)
+        if value:
+            return value
+    except Exception:
+        pass
+    print(f"WARNING: secret '{key}' not found in environment or Streamlit secrets.")
+    return None
 
 # --- Location ---
 LATITUDE = 27.70
@@ -33,7 +43,8 @@ BACKFILL_CHUNK_SIZE = 90           # days per API call, per chunk
 BACKFILL_LAG_BUFFER_DAYS = 6       # stay clear of ERA5's reporting lag
 
 # --- Hopsworks ---
-HOPSWORKS_API_KEY = os.getenv("HOPSWORKS_API_KEY")
+HOPSWORKS_API_KEY = _get_secret("HOPSWORKS_API_KEY")
+FIRMS_MAP_KEY = _get_secret("FIRMS_MAP_KEY")
 FEATURE_GROUP_NAME = "aqi_features"
 FEATURE_GROUP_VERSION = 2
 FEATURE_GROUP_PRIMARY_KEY = ["time"]

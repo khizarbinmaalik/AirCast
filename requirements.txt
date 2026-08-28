@@ -1,0 +1,11 @@
+streamlit
+plotly
+streamlit-extras
+shap
+hopsworks
+pyarrow
+xgboost
+pandas
+numpy
+requests
+python-dotenv

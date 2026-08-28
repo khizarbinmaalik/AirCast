@@ -41,11 +41,8 @@ def fetch_current_features(latitude=LATITUDE, longitude=LONGITUDE, past_days=5):
 def load_latest_model():
     project = hopsworks.login(api_key_value=HOPSWORKS_API_KEY)
     mr = project.get_model_registry()
-
-    # Get the latest model version from the registry
     all_versions = mr.get_models(MODEL_NAME)
     model_meta = max(all_versions, key=lambda m: m.version)
-
     model_dir = model_meta.download()
 
     models = {}
@@ -57,8 +54,7 @@ def load_latest_model():
     with open(f"{model_dir}/feature_columns.json") as f:
         feature_cols = json.load(f)
 
-    print(f"Loaded model version {model_meta.version}")
-    return models, feature_cols
+    return models, feature_cols, model_meta.training_metrics, model_meta.version
 
 
 def predict_forecast(feature_row, models, feature_cols):
@@ -75,6 +71,14 @@ def predict_forecast(feature_row, models, feature_cols):
 
     return forecast
 
+def fetch_display_history(latitude=LATITUDE, longitude=LONGITUDE, past_days=2):
+    """Lightweight fetch for DISPLAY only (charts, condition cards) — raw
+    AQI + weather, no lag features/fire data/Hopsworks read needed, since
+    nothing here feeds the model. Far faster than a feature-store read."""
+    aqi_df = fetch_aqi_data(latitude, longitude, past_days=past_days, forecast_days=0)
+    weather_df = fetch_weather_data(latitude, longitude, past_days=past_days, forecast_days=0)
+    merged_df = merge_data(aqi_df, weather_df)
+    return merged_df.sort_values("time").reset_index(drop=True)
 
 if __name__ == "__main__":
     feature_row = fetch_current_features()

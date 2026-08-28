@@ -1,14 +1,10 @@
-import os
 import time
 import io
 import requests
 import pandas as pd
 from datetime import date, timedelta
-from dotenv import load_dotenv
+from src.config import FIRMS_MAP_KEY as MAP_KEY
 
-load_dotenv()
-
-MAP_KEY = os.getenv("FIRMS_MAP_KEY")
 FIRMS_AREA = "67.4,26.2,70.4,29.2"   
 FIRMS_SOURCE = "VIIRS_SNPP_SP"        
 FIRMS_SOURCE_NRT = "VIIRS_SNPP_NRT"

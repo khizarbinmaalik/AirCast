@@ -9,7 +9,7 @@ import base64
 
 from src.inference import fetch_current_features, fetch_display_history, load_latest_model, predict_forecast
 
-st.set_page_config(page_title="RuFus · Pearls AQI Predictor", page_icon="🍃", layout="wide")
+st.set_page_config(page_title="AirCast · AQI Predictor", page_icon="🍃", layout="wide")
 
 # --- Theme constants (single source of truth — every color below pulls from here) ---
 TEXT = "#F4F7FB"
@@ -210,7 +210,7 @@ with header_left:
     st.markdown(
         '''
         <div class="title-wrap">
-            <div class="hero-title">Rufus</div>
+            <div class="hero-title">AirCast</div>
             <div class="hero-subtitle">A modern forecast dashboard for Sukkur air quality, combining live conditions, 3-day predictions, and model explanations in one calm, readable view.</div>
         </div>
         ''',

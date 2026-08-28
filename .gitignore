@@ -2,3 +2,5 @@ __pycache__
 .env
 aqi_features.csv
 fire_data_raw.csv
+.venv/
+model_artifacts/

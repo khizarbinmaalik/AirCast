@@ -18,7 +18,7 @@ def plot_summary(shap_values, X, horizon):
     shap.summary_plot(shap_values, X, show=False)
     plt.title(f"SHAP Summary — Day {horizon} (delta prediction)")
     plt.tight_layout()
-    plt.savefig(f"shap_summary_day{horizon}.png", dpi=150)
+    plt.savefig(f"docs/figures/shap_summary_day{horizon}.png", dpi=150)
     plt.close()
     print(f"Saved shap_summary_day{horizon}.png")
 
@@ -45,7 +45,7 @@ def explain_single_prediction(model, explainer, shap_values, X, test_df, row_idx
     shap.plots.waterfall(single_explanation, show=False)
     plt.title(f"Day {horizon} — why this prediction (delta scale)")
     plt.tight_layout()
-    plt.savefig(f"shap_waterfall_day{horizon}_row{row_idx}.png", dpi=150)
+    plt.savefig(f"docs/figures/shap_waterfall_day{horizon}_row{row_idx}.png", dpi=150)
     plt.close()
     print(f"Saved shap_waterfall_day{horizon}_row{row_idx}.png")
 
